@@ -1,0 +1,8 @@
+#!/bin/sh
+if git diff --cached --name-only | grep -qE '(^|/)\.keys\.json$'; then
+  echo "ERROR: .keys.json is staged. Aborting."; exit 1
+fi
+if git diff --cached -U0 | grep -qE '^\+.*(privateKey|SECRET_KEY|PRIVATE_KEY)"?\s*[:=]\s*"?[A-Za-z0-9_-]{40,}'; then
+  echo "ERROR: Possible private key in staged diff. Aborting."; exit 1
+fi
+exit 0

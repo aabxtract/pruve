@@ -1,0 +1,36 @@
+{
+  "name": "pruve",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n issuer,vapi,devapi,holder,verifier,shop -c blue,magenta,red,green,yellow,cyan \"npm -w @pruve/issuer-api run dev\" \"npm -w @pruve/verifier-api run dev\" \"npm -w @pruve/developer-api run dev\" \"npm -w holder run dev\" \"npm -w verifier run dev\" \"npm -w shop run dev\"",
+    "keys": "npm -w @pruve/issuer-api run keys",
+    "typecheck": "tsc -b --force packages/core packages/sdk packages/issuer-api packages/verifier-api packages/developer-api",
+    "test": "tsx scripts/core.test.ts",
+    "smoke": "tsx scripts/smoke.ts",
+    "test:offline": "tsx scripts/offline.test.ts",
+    "verify:all": "npm run typecheck && npm test && npm run smoke && npm run test:offline && npm run test:shop && npm run test:api",
+    "hooks:install": "git config core.hooksPath scripts/githooks",
+    "icons": "tsx scripts/gen-icons.ts",
+    "qr-size": "tsx scripts/qr-size.ts",
+    "rehearse": "tsx scripts/rehearse.ts",
+    "doctor": "tsx scripts/demo-doctor.ts",
+    "demo:reset": "tsx scripts/demo-reset.ts",
+    "tunnel:test": "tsx scripts/tunnel-test.ts",
+    "tunnel:wire": "tsx scripts/tunnel-wire.ts",
+    "test:link": "tsx scripts/link-flow.test.ts",
+    "registry": "tsx scripts/gen-registry.ts",
+    "test:shop": "tsx scripts/shop.test.ts",
+    "test:api": "tsx scripts/api.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "concurrently": "^9.1.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

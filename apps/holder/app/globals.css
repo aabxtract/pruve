@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    /* Stops iOS enlarging text when the phone is rotated. */
+    -webkit-text-size-adjust: 100%;
+    background-color: #09090b;
+  }
+
+  body {
+    /* Paint into the notch and home-indicator areas, then pad back out, so
+       the background is edge to edge but content is never clipped. */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+
+    /* Kills the grey flash on tap that makes a web app feel like a web app. */
+    -webkit-tap-highlight-color: transparent;
+
+    /* Pull-to-refresh would reload the page mid-presentation and throw away a
+       generated proof. Overscroll glow goes with it. */
+    overscroll-behavior-y: none;
+  }
+
+  /* iOS zooms the viewport when focusing an input whose font-size is under
+     16px. Fixing the size is the accessible fix; disabling zoom in the
+     viewport meta is not. */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Removes the 300ms tap delay and stops double-tap-to-zoom on controls. */
+  button,
+  a,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* Chrome shouldn't be selectable on a phone, but proof links must be. */
+  button,
+  h1,
+  h2,
+  label {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+@layer utilities {
+  /* Bottom padding that clears the home indicator on gesture-nav phones. */
+  .pb-safe {
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  }
+
+  .pt-safe {
+    padding-top: calc(1.5rem + env(safe-area-inset-top));
+  }
+}

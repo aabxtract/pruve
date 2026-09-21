@@ -1,0 +1,18 @@
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
+
+# Secrets — never commit
+.keys.json
+.env
+.env*.local
+
+# Local caches / state
+.pubkeys.json
+*.db
+*.db-journal
+
+# Developer API keys
+.api-keys.json

@@ -1,0 +1,16 @@
+{
+  "name": "@pruve/issuer-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "keys": "tsx scripts/generate-keys.ts",
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@pruve/core": "*",
+    "hono": "^4.6.13"
+  }
+}
