@@ -59,6 +59,43 @@ function bvnFor(nin: string): string {
   return "22" + String(h % 1_000_000_000).padStart(9, "0");
 }
 
+/** Deterministic hash used to derive card details from a NIN. */
+function hash32(seed: string, salt: string): number {
+  let h = 2166136261;
+  const s = salt + seed;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h >>> 0;
+}
+
+/** Appends the Luhn check digit so the number validates like a real card. */
+function luhnComplete(first15: string): string {
+  let sum = 0;
+  const rev = [...first15].reverse();
+  for (let i = 0; i < rev.length; i++) {
+    let d = Number(rev[i]);
+    if (i % 2 === 0) {
+      d *= 2;
+      if (d > 9) d -= 9;
+    }
+    sum += d;
+  }
+  return first15 + String((10 - (sum % 10)) % 10);
+}
+
+/** 5061 is the Verve BIN range — the card most Nigerians actually carry. */
+function cardFor(nin: string) {
+  const body = String(hash32(nin, "pan") % 100_000_000_000).padStart(11, "0");
+  const month = (hash32(nin, "exp") % 12) + 1;
+  return {
+    card_number: luhnComplete("5061" + body),
+    card_expiry: `${String(month).padStart(2, "0")}/${28 + (hash32(nin, "yr") % 3)}`,
+    card_cvv: String(hash32(nin, "cvv") % 1000).padStart(3, "0"),
+  };
+}
+
 function ageBand(age: number) {
   if (age < 18) return "under_18";
   if (age <= 25) return "18-25";
@@ -80,6 +117,10 @@ interface Person {
   account: string;
   bank: string;
   card_ref: string;
+  /** Verve-style 16-digit PAN, Luhn-valid. Synthetic. */
+  card_number: string;
+  card_expiry: string;
+  card_cvv: string;
   monthly_income: number;
   bvn_verified: boolean;
   account_status: "active" | "inactive";
@@ -133,7 +174,10 @@ for (const age of AGE_PLAN) {
     state: pick(STATES),
     account,
     bank: pick(BANKS),
-    card_ref: `•••• ${int(1000, 9999)}`, // display only, never a real PAN
+    // The discarded draw keeps the PRNG sequence identical to before card
+    // details were added, so no existing record's NIN shifts.
+    card_ref: (int(1000, 9999), `•••• ${cardFor(nin).card_number.slice(-4)}`),
+    ...cardFor(nin),
     monthly_income: income,
     bvn_verified: adult && rand() > 0.1,
     account_status: accountStatus,
@@ -164,5 +208,6 @@ console.log("  age bands:", bands);
 console.log("\n  Sample NINs for the demo:");
 for (const band of ["under_18", "18-25", "26-35"]) {
   const p = people.find((x) => ageBand(x.age) === band)!;
+  console.log(`    CARD ${p.card_number}  exp ${p.card_expiry}  cvv ${p.card_cvv}`);
   console.log(`    ${band.padEnd(9)} NIN ${p.nin}  BVN ${p.bvn}  ${p.name}, ${p.age}`);
 }

@@ -7,6 +7,8 @@ enough without showing your statements. The verifier gets an answer they can
 check themselves, and a receipt — and no identifier ever leaves your phone.
 
 > **Track B · ICSC 2026 Hackathon · Team Phantom**
+>
+> [github.com/aabxtract/pruve](https://github.com/aabxtract/pruve)
 
 ---
 
@@ -68,6 +70,14 @@ Then `npm run verify:all` — 107 assertions across five suites.
 
 **Try it:** open `localhost:3005`, tap *Verify with Pruve*, and scan with the
 wallet. Then open the inspector on the result and try to forge the proof.
+
+Demo identifiers (synthetic — Funmi Eze, 19, Rivers State):
+
+```
+NIN     33089007232
+BVN     22861727646
+Card    5061 0127 0607 4655    exp 10/30    cvv 855
+```
 
 ---
 
@@ -141,10 +151,18 @@ Full guide: **[`docs/INTEGRATION.md`](docs/INTEGRATION.md)**
 Income is issued as **threshold booleans**, not a bracket — "I earn ₦100k+"
 reveals one `true`, not which band you're in.
 
-Card templates never expose a card number, expiry or CVV. Linking a card asks
-for the **account number**; the bank attests the card works. Those values are
-never made into claims, so no commitment exists for them and nothing could
-disclose them. It also keeps the system outside PCI-DSS scope.
+Each issuer takes the identifier Nigeria actually uses — **NIN** for identity,
+**BVN** for banking (one BVN spans every bank you use), and a full **card
+number, expiry and CVV** for the card. All three are used once for a lookup and
+then discarded inside the request handler.
+
+Nothing from them is stored, logged, or made into a claim, so no commitment
+exists over them and nothing could disclose them — which also keeps the system
+outside PCI-DSS scope. The card response even names what it dropped:
+`"discarded": ["card_number", "expiry", "cvv"]`.
+
+Asking for a card and visibly throwing it away is a stronger demonstration than
+never asking: it shows data minimisation happening instead of asserting it.
 
 ---
 

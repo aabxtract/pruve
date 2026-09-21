@@ -1,9 +1,9 @@
 "use client";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import QRCode from "react-qr-code";
 import { TEMPLATES, b64uFromString, type TemplateId } from "@pruve/core";
-import { getCredential } from "@/lib/store";
+import { getCredential, type StoredCredential } from "@/lib/store";
 import { buildProof, previewDisclosure } from "@/lib/proof";
 import { postJson } from "@/lib/http";
 
@@ -16,11 +16,20 @@ function ShareContent() {
   const api = params.get("api") ?? process.env.NEXT_PUBLIC_VERIFIER_API_URL;
 
   const template = templateId ? TEMPLATES[templateId] : undefined;
-  const entry = useMemo(
-    () => (template ? getCredential(template.credentialType) : undefined),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [template?.id]
-  );
+
+  // The wallet lives in localStorage, which does not exist during server
+  // rendering. Reading it inside render made the server emit "you haven't
+  // linked this" and the page could keep showing that even once the
+  // credential was there. Read after mount instead, and hold a loading state
+  // until we actually know.
+  const [entry, setEntry] = useState<StoredCredential | undefined>(undefined);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!template) return;
+    setEntry(getCredential(template.credentialType));
+    setReady(true);
+  }, [template?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [step, setStep] = useState<"confirm" | "qr" | "sent">("confirm");
   const [proofUrl, setProofUrl] = useState("");
@@ -30,6 +39,15 @@ function ShareContent() {
   const [copied, setCopied] = useState(false);
 
   if (!template) return <Shell><p>Unknown template.</p></Shell>;
+
+  if (!ready) {
+    return (
+      <Shell>
+        <div className="pt-24 text-center text-zinc-500 text-sm">Opening your wallet…</div>
+      </Shell>
+    );
+  }
+
   if (!entry) {
     return (
       <Shell>

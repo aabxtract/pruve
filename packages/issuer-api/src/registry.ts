@@ -19,6 +19,9 @@ export interface Person {
   account: string;
   bank: string;
   card_ref: string;
+  card_number: string;
+  card_expiry: string;
+  card_cvv: string;
   monthly_income: number;
   bvn_verified: boolean;
   account_status: "active" | "inactive";
@@ -36,6 +39,7 @@ const loaded = JSON.parse(fs.readFileSync(file, "utf-8")) as { people: Person[] 
 const byNin = new Map(loaded.people.map((p) => [p.nin, p]));
 const byAccount = new Map(loaded.people.map((p) => [p.account, p]));
 const byBvn = new Map(loaded.people.map((p) => [p.bvn, p]));
+const byCard = new Map(loaded.people.map((p) => [p.card_number, p]));
 
 export const registrySize = loaded.people.length;
 
@@ -76,6 +80,18 @@ export function findByAccount(account: string): { person: Person; exact: boolean
 export function findByBvn(bvn: string): { person: Person; exact: boolean } {
   const hit = byBvn.get(bvn);
   return hit ? { person: hit, exact: true } : { person: fallback(bvn, byBvn), exact: false };
+}
+
+/**
+ * Look a card up by its number.
+ *
+ * The PAN is used here and nowhere else: it resolves to a cardholder and is
+ * then dropped. It is never persisted, never logged, and never made into a
+ * claim — so no commitment exists over it and it cannot appear in a proof.
+ */
+export function findByCard(pan: string): { person: Person; exact: boolean } {
+  const hit = byCard.get(pan);
+  return hit ? { person: hit, exact: true } : { person: fallback(pan, byCard), exact: false };
 }
 
 /** A few real records, surfaced in the UI so a demo has something to type. */

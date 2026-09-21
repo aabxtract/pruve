@@ -184,8 +184,7 @@ these out is the point.
 A successful verification gives you `disclosed` — only the fields the template
 names — plus an issuer and a receipt id.
 
-You do not get a name, a NIN, a date of birth, an account number or a card
-number. Not because they are filtered on the way out, but because they were
+You do not get a name, a NIN, a BVN, a date of birth or a card number. Not because they are filtered on the way out, but because they were
 never in the proof: the credential carries hashed commitments, and only the
 fields the customer chose to open are readable at all.
 
@@ -204,5 +203,7 @@ receipt id is not.
 | `card_active` | Holds a working debit card | `card_active` |
 | `card_premium` | Card is gold or platinum | `card_active`, `card_is_premium` |
 
-Card templates never expose a card number, expiry or CVV — those are not
-claims, so no commitment exists for them and they cannot be disclosed.
+Card templates never expose a card number, expiry or CVV. The issuer collects
+and validates them, then discards them in the same request — they are never
+made into claims, so no commitment exists for them and they cannot be
+disclosed.

@@ -11,7 +11,7 @@
  * Caching either of those would put credential traffic in a disk cache and
  * could replay a stale verification result.
  */
-const CACHE = "pruve-shell-v1";
+const CACHE = "pruve-shell-v5";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
