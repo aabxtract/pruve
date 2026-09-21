@@ -1,99 +1,123 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { TEMPLATE_LIST, type WalletCredential } from "@pruve/core";
+import { getProfile } from "@/lib/profile";
 import { getWallet } from "@/lib/store";
 
-export default function WalletPage() {
-  const [wallet, setWallet] = useState<WalletCredential[] | null>(null);
+/**
+ * Landing page.
+ *
+ * Anyone who already has a profile is sent straight to the wallet — a
+ * returning user should never have to read the pitch again. The redirect runs
+ * after mount because the profile lives in localStorage, so the first paint is
+ * deliberately blank rather than a flash of marketing.
+ */
+export default function Landing() {
+  const router = useRouter();
+  const [leaving, setLeaving] = useState(false);
 
-  useEffect(() => setWallet(getWallet()), []);
+  useEffect(() => {
+    if (getProfile()) {
+      setLeaving(true);
+      router.replace("/wallet");
+    }
+  }, [router]);
 
-  const has = (t: string) => !!wallet?.some((w) => w.credential.type === t);
-
+  // The markup is rendered server-side and shown immediately — over a tunnel a
+  // blank first paint reads as a broken link. A returning user is redirected
+  // on mount instead, and the page is dimmed while that happens so the
+  // hand-off does not look like a flash of the wrong screen.
   return (
-    <main className="min-h-dvh bg-zinc-950 text-white px-6 pt-safe pb-safe max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-1">Pruve</h1>
-      <p className="text-zinc-400 text-sm mb-8">Your identity. Your control.</p>
+    <main
+      className={`min-h-dvh bg-zinc-950 text-white transition-opacity duration-150 ${
+        leaving ? "opacity-0" : "opacity-100"
+      }`}
+    >
+      {/* A soft glow behind the fold, so the page does not read as a flat form. */}
+      <div className="relative overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute -top-40 left-1/2 -translate-x-1/2 w-[480px] h-[480px] rounded-full bg-emerald-500/15 blur-3xl"
+        />
+        <div className="relative px-6 pt-safe pb-10 max-w-md mx-auto">
+          <div className="flex items-center gap-2 mb-16 pt-4">
+            <div className="w-8 h-8 rounded-xl bg-white grid place-items-center text-zinc-950 font-bold text-sm">
+              ✓
+            </div>
+            <span className="font-semibold tracking-tight">Pruve</span>
+          </div>
 
-      <section className="mb-8">
-        <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Your credentials</h2>
-        <div className="space-y-3">
-          <CredCard label="NIMC Identity" linked={has("nimc")} href="/onboard/nimc" />
-          <CredCard label="Bank Account" linked={has("bank")} href="/onboard/bank" />
-          <CredCard label="Debit Card" linked={has("card")} href="/onboard/card" />
+          <h1 className="text-[2.6rem] leading-[1.05] font-bold tracking-tight mb-5">
+            Prove one fact.
+            <br />
+            <span className="text-zinc-500">Reveal nothing else.</span>
+          </h1>
+
+          <p className="text-zinc-400 leading-relaxed mb-10">
+            Show a bar you&apos;re over 18 without showing your NIN. Show a landlord you earn
+            enough without showing your statements. Your details stay on your phone.
+          </p>
+
+          <Link
+            href="/setup"
+            className="block w-full bg-white text-zinc-950 rounded-2xl px-5 py-4 text-sm font-semibold text-center transition hover:bg-zinc-200 active:scale-[0.99]"
+          >
+            Set up your wallet
+          </Link>
+          <p className="text-center text-zinc-600 text-xs mt-4">
+            Takes about a minute. No account, no password.
+          </p>
         </div>
-      </section>
+      </div>
 
-      <section>
-        <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Prove something</h2>
-        <div className="space-y-3">
-          {TEMPLATE_LIST.map((t) => {
-            const available = has(t.credentialType);
-            const body = (
-              <>
-                <span className="text-2xl">{t.icon}</span>
-                <div>
-                  <p className="font-medium text-sm">{t.label}</p>
-                  <p className="text-zinc-500 text-xs">{t.description}</p>
-                </div>
-              </>
-            );
-            const base = "flex items-center gap-4 p-4 rounded-2xl border transition";
-
-            return available ? (
-              <Link
-                key={t.id}
-                href={`/share?template=${t.id}`}
-                className={`${base} border-zinc-700 bg-zinc-900 hover:border-white`}
-              >
-                {body}
-              </Link>
-            ) : (
-              <div
-                key={t.id}
-                aria-disabled
-                className={`${base} border-zinc-800 bg-zinc-900/40 opacity-40`}
-              >
-                {body}
+      <div className="px-6 pb-safe max-w-md mx-auto">
+        <div className="space-y-3 mb-12">
+          {[
+            {
+              icon: "🔒",
+              title: "Nothing leaves without you",
+              body: "Every share shows exactly what will be sent, before it's sent.",
+            },
+            {
+              icon: "🧮",
+              title: "Not a screenshot, a signature",
+              body: "Your credentials are cryptographically signed. Changing one value breaks them.",
+            },
+            {
+              icon: "👁️",
+              title: "Nobody watches",
+              body: "The issuer that vouched for you is never told where you used it.",
+            },
+          ].map((f) => (
+            <div key={f.title} className="flex gap-4 p-4 rounded-2xl bg-zinc-900/60 border border-zinc-800/80">
+              <span className="text-xl leading-none mt-0.5">{f.icon}</span>
+              <div>
+                <p className="font-medium text-sm mb-1">{f.title}</p>
+                <p className="text-zinc-500 text-sm leading-relaxed">{f.body}</p>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
-      </section>
 
-      <p className="text-zinc-600 text-xs mt-10 leading-relaxed">
-        To answer a verifier&apos;s request, point your phone camera at their QR code.
-      </p>
+        <ReturningHint />
+
+        <p className="text-zinc-700 text-xs text-center leading-relaxed pb-6">
+          Demo build. Identity data is synthetic and issuers are simulated.
+        </p>
+      </div>
     </main>
   );
 }
 
-function CredCard({ label, linked, href }: { label: string; linked: boolean; href: string }) {
-  const inner = (
-    <>
-      <span className="text-sm font-medium">{label}</span>
-      <span
-        className={`text-xs px-2 py-1 rounded-full ${
-          linked ? "bg-green-900 text-green-400" : "bg-zinc-800 text-zinc-400"
-        }`}
-      >
-        {linked ? "✓ Linked" : "Link →"}
-      </span>
-    </>
-  );
-  const cls = "flex items-center justify-between p-4 rounded-2xl border border-zinc-800 bg-zinc-900";
-
-  return linked ? (
-    <div className={cls}>
-      {inner}
-      <Link href={href} className="sr-only">
-        Re-link {label}
-      </Link>
-    </div>
-  ) : (
-    <Link href={href} className={cls}>
-      {inner}
+/** Someone who cleared their profile but kept credentials shouldn't be stranded. */
+function ReturningHint() {
+  const [hasCreds, setHasCreds] = useState(false);
+  useEffect(() => setHasCreds(getWallet().length > 0), []);
+  if (!hasCreds) return null;
+  return (
+    <Link href="/wallet" className="block text-center text-sm text-zinc-400 underline mb-8">
+      I already have credentials on this device
     </Link>
   );
 }

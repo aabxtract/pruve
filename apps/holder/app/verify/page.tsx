@@ -67,7 +67,7 @@ function VerifyContent() {
       <h1 className="text-2xl font-bold mb-1">Pruve Verify</h1>
       <p className="text-zinc-400 text-sm mb-8">Someone shared a proof with you</p>
       {loading && <p className="text-center py-12 text-zinc-400">Verifying…</p>}
-      {result && <ResultCard result={result} onReset={() => (window.location.href = "/")} />}
+      {result && <ResultCard result={result} onReset={() => (window.location.href = "/wallet")} />}
     </main>
   );
 }

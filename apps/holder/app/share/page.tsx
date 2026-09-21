@@ -71,41 +71,68 @@ function ShareContent() {
     <Shell>
       {step === "confirm" && (
         <>
-          <h1 className="text-xl font-bold mb-2">{template.label}</h1>
-          <p className="text-zinc-400 text-sm mb-2">{template.description}</p>
-          {audience && (
-            <p className="text-amber-400 text-xs mb-6">Requested by: {audience}</p>
-          )}
-
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3 mt-6">
-            Exactly this will be sent
-          </p>
-          <div className="space-y-2 mb-6">
-            {Object.entries(preview).map(([k, v]) => (
-              <div key={k} className="flex justify-between text-sm text-green-400">
-                <span>✓ {k.replace(/_/g, " ")}</span>
-                <span className="font-mono">{String(v)}</span>
-              </div>
-            ))}
+          <div className="pt-4 mb-7">
+            {audience ? (
+              <>
+                <p className="text-zinc-500 text-sm mb-1">
+                  <span className="text-amber-400">{audience.replace(/_/g, " ")}</span> is asking
+                </p>
+                <h1 className="text-2xl font-bold tracking-tight">{template.label}</h1>
+              </>
+            ) : (
+              <>
+                <p className="text-zinc-500 text-sm mb-1">You&apos;re about to prove</p>
+                <h1 className="text-2xl font-bold tracking-tight">{template.label}</h1>
+              </>
+            )}
+            <p className="text-zinc-400 text-sm mt-2">{template.description}</p>
           </div>
 
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Stays on this phone</p>
-          <div className="space-y-2 mb-8">
-            {template.hides.map((f) => (
-              <div key={f} className="flex items-center gap-3 text-sm text-zinc-600">
-                <span>✗</span> {f}
-              </div>
-            ))}
+          <div className="rounded-2xl border border-emerald-800/50 bg-emerald-950/25 p-4 mb-3">
+            <p className="text-[11px] uppercase tracking-widest text-emerald-500/80 mb-3">
+              Exactly this will be sent
+            </p>
+            <div className="space-y-2">
+              {Object.entries(preview).map(([k, v]) => (
+                <div key={k} className="flex items-center justify-between gap-3 text-sm">
+                  <span className="text-emerald-300 flex items-center gap-2 min-w-0">
+                    <span className="text-emerald-500">✓</span>
+                    <span className="truncate">{k.replace(/_/g, " ")}</span>
+                  </span>
+                  <span className="font-mono text-emerald-200 shrink-0">{String(v)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 mb-7">
+            <p className="text-[11px] uppercase tracking-widest text-zinc-500 mb-3">
+              Stays on this phone
+            </p>
+            <div className="grid grid-cols-2 gap-y-2">
+              {template.hides.map((f) => (
+                <div key={f} className="flex items-center gap-2 text-sm text-zinc-500">
+                  <span className="text-zinc-700">✗</span>
+                  <span className="truncate">{f}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
           <button
             onClick={handleConfirm}
             disabled={busy}
-            className="w-full bg-white text-black font-semibold rounded-xl p-4 disabled:opacity-50"
+            className="w-full bg-white text-zinc-950 font-semibold rounded-2xl px-5 py-4 text-sm transition hover:bg-zinc-200 active:scale-[0.99] disabled:opacity-40"
           >
             {busy ? "Working…" : rid ? "Send proof" : "Generate proof"}
           </button>
+          <a
+            href="/wallet"
+            className="block text-center text-sm text-zinc-500 mt-4 py-2"
+          >
+            Cancel
+          </a>
         </>
       )}
 
@@ -152,7 +179,7 @@ function ShareContent() {
           <p className="text-5xl mb-4">{sent?.valid ? "✅" : "❌"}</p>
           <p className="text-xl font-bold mb-2">{sent?.valid ? "Proof accepted" : "Proof rejected"}</p>
           <p className="text-zinc-400 text-sm">{sent?.reason ?? "The verifier has their answer."}</p>
-          <a href="/" className="inline-block mt-8 text-sm underline text-zinc-400">
+          <a href="/wallet" className="inline-block mt-8 text-sm underline text-zinc-400">
             Back to wallet
           </a>
         </div>

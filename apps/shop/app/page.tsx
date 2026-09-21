@@ -76,40 +76,65 @@ export default function Shop() {
 
   return (
     <main className="min-h-dvh max-w-3xl mx-auto px-6 py-10">
-      <header className="flex items-baseline justify-between mb-2">
-        <h1 className="text-2xl font-bold tracking-tight">Campus Store</h1>
-        <span className="text-xs text-stone-400">a third-party merchant</span>
+      <header className="flex items-center justify-between mb-10">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-stone-900 grid place-items-center text-white text-sm font-bold">
+            C
+          </div>
+          <div>
+            <h1 className="font-bold tracking-tight leading-none">Campus Store</h1>
+            <p className="text-[11px] text-stone-400 mt-0.5">a third-party merchant</p>
+          </div>
+        </div>
+        {unlocked && (
+          <span className="text-xs font-medium px-3 py-1.5 rounded-full bg-green-100 text-green-800">
+            Student pricing active
+          </span>
+        )}
       </header>
-      <p className="text-stone-600 text-sm mb-8">
-        Student pricing on everything. Verify once, no account needed.
-      </p>
 
       {/* ---------------------------------------------------------- banner */}
       {stage === "browsing" && (
-        <div className="rounded-2xl border border-stone-300 bg-white p-5 mb-8">
-          <p className="font-medium mb-1">Unlock student pricing</p>
-          <p className="text-sm text-stone-600 mb-4">
-            We need to know you&apos;re a Nigerian student under 26. We don&apos;t want your name,
-            your NIN or your date of birth — and we&apos;ve built it so we can&apos;t receive them.
-          </p>
-          <button
-            onClick={startVerification}
-            className="bg-stone-900 text-white text-sm font-semibold rounded-xl px-5 py-3 hover:bg-stone-700 transition"
-          >
-            Verify with Pruve
-          </button>
+        <div className="relative overflow-hidden rounded-3xl border border-stone-200 bg-white p-7 mb-10">
+          <div
+            aria-hidden
+            className="absolute -top-24 -right-16 w-64 h-64 rounded-full bg-green-500/10 blur-3xl"
+          />
+          <div className="relative">
+            <p className="text-[11px] uppercase tracking-[0.15em] text-stone-400 mb-2">
+              Students save up to 30%
+            </p>
+            <h2 className="text-2xl font-bold tracking-tight mb-3">Unlock student pricing</h2>
+            <p className="text-stone-600 leading-relaxed mb-6 max-w-lg">
+              We need to know you&apos;re a Nigerian student under 26. We don&apos;t want your
+              name, your NIN or your date of birth — and we&apos;ve built it so we
+              <em> can&apos;t</em> receive them.
+            </p>
+            <button
+              onClick={startVerification}
+              className="bg-stone-900 text-white text-sm font-semibold rounded-xl px-6 py-3.5 hover:bg-stone-700 active:scale-[0.99] transition"
+            >
+              Verify with Pruve
+            </button>
+            <p className="text-xs text-stone-400 mt-3">
+              Takes about ten seconds. No account, no sign-up.
+            </p>
+          </div>
         </div>
       )}
 
       {stage === "waiting" && (
-        <div className="rounded-2xl border border-stone-300 bg-white p-6 mb-8 text-center">
-          <p className="font-medium mb-1">Scan with your Pruve wallet</p>
-          <p className="text-sm text-stone-600 mb-5">Point your phone camera at this code.</p>
-          <div className="inline-block bg-white p-4 rounded-xl border border-stone-200">
+        <div className="rounded-3xl border border-stone-200 bg-white p-8 mb-10 text-center">
+          <h2 className="text-lg font-bold tracking-tight mb-1">Scan with your Pruve wallet</h2>
+          <p className="text-sm text-stone-500 mb-6">Point your phone camera at this code.</p>
+          <div className="inline-block bg-white p-4 rounded-2xl border border-stone-200 shadow-sm">
             <QRCode value={qrUrl} size={220} level="L" />
           </div>
-          <p className="text-sm text-stone-400 mt-5 animate-pulse">Waiting for proof…</p>
-          <button onClick={reset} className="mt-4 text-sm text-stone-500 underline">
+          <div className="flex items-center justify-center gap-2 mt-6 text-sm text-stone-400">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            Waiting for proof…
+          </div>
+          <button onClick={reset} className="mt-4 text-sm text-stone-500 hover:text-stone-800">
             Cancel
           </button>
         </div>
@@ -146,28 +171,49 @@ export default function Shop() {
       )}
 
       {/* --------------------------------------------------------- catalog */}
+      <div className="flex items-baseline justify-between mb-4">
+        <h2 className="font-semibold tracking-tight">Popular this week</h2>
+        {unlocked && (
+          <span className="text-xs text-green-700 font-medium">Your discount is applied</span>
+        )}
+      </div>
       <div className="grid sm:grid-cols-2 gap-4">
-        {PRODUCTS.map((p) => (
-          <div key={p.name} className="rounded-2xl border border-stone-200 bg-white p-4 flex gap-4">
-            <span className="text-3xl">{p.emoji}</span>
-            <div className="flex-1">
-              <p className="font-medium text-sm">{p.name}</p>
+        {PRODUCTS.map((p) => {
+          const save = Math.round(((p.full - p.student) / p.full) * 100);
+          return (
+            <div
+              key={p.name}
+              className={`group rounded-2xl border bg-white p-5 transition ${
+                unlocked ? "border-green-200 shadow-sm" : "border-stone-200 hover:border-stone-300"
+              }`}
+            >
+              <div className="flex items-start justify-between mb-4">
+                <span className="text-3xl">{p.emoji}</span>
+                <span
+                  className={`text-[11px] font-semibold px-2 py-1 rounded-full ${
+                    unlocked ? "bg-green-100 text-green-800" : "bg-stone-100 text-stone-500"
+                  }`}
+                >
+                  −{save}%
+                </span>
+              </div>
+              <p className="font-medium text-sm mb-2">{p.name}</p>
               {unlocked ? (
-                <p className="mt-1">
-                  <span className="text-green-700 font-bold">{naira(p.student)}</span>{" "}
+                <p className="flex items-baseline gap-2">
+                  <span className="text-green-700 font-bold text-lg">{naira(p.student)}</span>
                   <span className="text-stone-400 line-through text-sm">{naira(p.full)}</span>
                 </p>
               ) : (
-                <p className="mt-1">
-                  <span className="font-bold">{naira(p.full)}</span>
-                  <span className="block text-xs text-stone-400">
-                    {naira(p.student)} with student pricing
-                  </span>
-                </p>
+                <>
+                  <p className="font-bold text-lg">{naira(p.full)}</p>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    {naira(p.student)} for students
+                  </p>
+                </>
               )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <footer className="mt-10 pt-6 border-t border-stone-200 text-xs text-stone-500 leading-relaxed">
