@@ -1,6 +1,6 @@
 import type { CredentialType, WalletCredential } from "@pruve/core";
 
-const KEY = "pruve_wallet_v2";
+const KEY = "pruve_wallet_v4";
 
 /**
  * What the issuer told us about the holder at issuance time.

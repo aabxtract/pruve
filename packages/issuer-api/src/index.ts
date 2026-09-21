@@ -13,7 +13,7 @@ import {
 } from "@pruve/core";
 import { loadKeys } from "./keys.js";
 import { bankClaims, cardClaims, nimcClaims } from "./claims.js";
-import { findByAccount, findByNin, registrySize, samples } from "./registry.js";
+import { findByBvn, findByNin, registrySize, samples } from "./registry.js";
 
 const KEYS = loadKeys();
 const YEAR = 60 * 60 * 24 * 365;
@@ -62,7 +62,7 @@ app.get("/samples", (c) => {
   const s = samples();
   const shape = (p: (typeof s)["student"]) => ({
     nin: p.nin,
-    account: p.account,
+    bvn: p.bvn,
     name: p.name,
     age: p.age,
     bank: p.bank,
@@ -87,11 +87,13 @@ app.post("/issue/nimc", async (c) => {
 
 app.post("/issue/bank", async (c) => {
   const body = await c.req.json().catch(() => ({}));
-  const account = String(body?.account ?? "");
-  if (!/^\d{10}$/.test(account)) {
-    return c.json({ error: "Account number must be 10 digits" }, 400);
+  const bvn = String(body?.bvn ?? "");
+  if (!/^\d{11}$/.test(bvn)) {
+    return c.json({ error: "BVN must be 11 digits" }, 400);
   }
-  const { person, exact } = findByAccount(account);
+  // The BVN identifies the holder across every bank they use, and is neither
+  // persisted nor logged.
+  const { person, exact } = findByBvn(bvn);
   return c.json({
     ...issue("bank", `mock-${person.bank.toLowerCase().replace(/\s+/g, "")}.pruve.ng`, bankClaims(person)),
     subject: { name: person.name, bank: person.bank, matched: exact },
@@ -101,18 +103,18 @@ app.post("/issue/bank", async (c) => {
 /**
  * Card issuance.
  *
- * Takes the account the card belongs to, never a card number. There is no
+ * Takes the holder's BVN, never a card number. There is no
  * field here that could carry a PAN, an expiry or a CVV, so none can be
  * committed to and none can ever be disclosed. The bank attests that the card
  * works; Pruve never sees the card.
  */
 app.post("/issue/card", async (c) => {
   const body = await c.req.json().catch(() => ({}));
-  const account = String(body?.account ?? "");
-  if (!/^\d{10}$/.test(account)) {
-    return c.json({ error: "Enter the 10-digit account the card belongs to" }, 400);
+  const bvn = String(body?.bvn ?? "");
+  if (!/^\d{11}$/.test(bvn)) {
+    return c.json({ error: "BVN must be 11 digits" }, 400);
   }
-  const { person, exact } = findByAccount(account);
+  const { person, exact } = findByBvn(bvn);
   if (!person.card_active) {
     return c.json({ error: "No active card is linked to that account" }, 409);
   }

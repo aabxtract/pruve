@@ -48,6 +48,17 @@ const BANKS = ["GTBank", "Access Bank", "Zenith Bank", "UBA", "First Bank", "Kud
 
 const YEAR = 2026;
 
+/** Deterministic 11-digit BVN derived from a NIN. Distinct from it, stable. */
+function bvnFor(nin: string): string {
+  let h = 2166136261;
+  for (let i = 0; i < nin.length; i++) {
+    h ^= nin.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  // 22xxxxxxxxx keeps it visibly a different number space from the NIN.
+  return "22" + String(h % 1_000_000_000).padStart(9, "0");
+}
+
 function ageBand(age: number) {
   if (age < 18) return "under_18";
   if (age <= 25) return "18-25";
@@ -58,6 +69,10 @@ function ageBand(age: number) {
 
 interface Person {
   nin: string;
+  /** Bank Verification Number — the identifier that links a person to every
+   *  bank they use. This, not an account number, is what a Nigerian bank
+   *  identifies you by. */
+  bvn: string;
   name: string;
   dob: string;
   age: number;
@@ -109,6 +124,9 @@ for (const age of AGE_PLAN) {
 
   people.push({
     nin,
+    // Derived from the NIN rather than drawn from the PRNG, so adding this
+    // field did not shift the sequence and reshuffle every existing record.
+    bvn: bvnFor(nin),
     name: `${pick(FIRST)} ${pick(LAST)}`,
     dob: `${YEAR - age}-${String(int(1, 12)).padStart(2, "0")}-${String(int(1, 28)).padStart(2, "0")}`,
     age,
@@ -146,5 +164,5 @@ console.log("  age bands:", bands);
 console.log("\n  Sample NINs for the demo:");
 for (const band of ["under_18", "18-25", "26-35"]) {
   const p = people.find((x) => ageBand(x.age) === band)!;
-  console.log(`    ${band.padEnd(9)} ${p.nin}  ${p.name}, ${p.age}  acct ${p.account}`);
+  console.log(`    ${band.padEnd(9)} NIN ${p.nin}  BVN ${p.bvn}  ${p.name}, ${p.age}`);
 }

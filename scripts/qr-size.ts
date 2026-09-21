@@ -27,8 +27,9 @@ const post = (url: string, body: unknown) =>
   });
 
 async function main() {
-  const nimc = (await (await post(`${ISSUER}/issue/nimc`, { nin: "12345678903" })).json()) as WalletCredential;
-  const bank = (await (await post(`${ISSUER}/issue/bank`, { account: "1234567893" })).json()) as WalletCredential;
+  const samples = await (await fetch(`${ISSUER}/samples`)).json();
+  const nimc = (await (await post(`${ISSUER}/issue/nimc`, { nin: samples.student.nin })).json()) as WalletCredential;
+  const bank = (await (await post(`${ISSUER}/issue/bank`, { bvn: samples.student.bvn })).json()) as WalletCredential;
 
   console.log(
     "template".padEnd(16),

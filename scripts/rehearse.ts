@@ -69,7 +69,7 @@ async function main() {
   console.log(`         claim_hashes  ${JSON.stringify(adult.credential.claim_hashes)}`);
 
   const minor = (await (await post(`${ISSUER}/issue/nimc`, { nin: s.minor.nin })).json()) as WalletCredential;
-  const bank = (await (await post(`${ISSUER}/issue/bank`, { account: s.student.account })).json()) as WalletCredential;
+  const bank = (await (await post(`${ISSUER}/issue/bank`, { bvn: s.student.bvn })).json()) as WalletCredential;
 
   // ----------------------------------------------------------- scenario 1
   hr("SCENARIO 1 — Age check at a venue (bound request flow)");

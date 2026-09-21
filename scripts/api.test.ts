@@ -183,7 +183,7 @@ async function main() {
 
   // Raw encoded proof, as a shared link would carry it. Uses a bank
   // credential so this is a clean accept rather than a template mismatch.
-  const banked = (await (await post(`${ISSUER}/issue/bank`, { account: samples.student.account })).json()) as WalletCredential;
+  const banked = (await (await post(`${ISSUER}/issue/bank`, { bvn: samples.student.bvn })).json()) as WalletCredential;
   const rawLink = b64uFromString(JSON.stringify(buildProof(banked, "i_am_verified")));
   const rawRes = await (await post(`${API}/v1/verify`, { proof: rawLink }, auth)).json();
   rawRes.valid

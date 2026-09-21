@@ -55,11 +55,12 @@ async function main() {
 
   // 1. Holder gets a bank credential and builds an income proof.
   head("1. Holder generates a shareable proof");
+  const BVN = (await (await fetch(`${process.env.ISSUER_URL ?? "http://localhost:3001"}/samples`)).json()).student.bvn;
   const entry = (await (
     await asRecipient(`${TUNNEL}/api/issuer/issue/bank`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ account: "1234567893" }),
+      body: JSON.stringify({ bvn: BVN }),
     })
   ).json()) as WalletCredential;
   ok("bank credential issued");

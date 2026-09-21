@@ -7,7 +7,7 @@
  * disclosed. Wiping site data wipes it, which is the correct behaviour for
  * something that only makes the app feel like theirs.
  */
-const KEY = "pruve_profile_v1";
+const KEY = "pruve_profile_v3";
 
 export interface Profile {
   name: string;

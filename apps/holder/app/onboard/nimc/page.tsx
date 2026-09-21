@@ -5,7 +5,6 @@ export default function OnboardNimc() {
     <OnboardForm
       kind="nimc"
       field="nin"
-      sampleKey="nin"
       digits={11}
       title="Link NIMC"
       blurb="Your NIN fetches your identity credential and is not stored — not by us, and not on this phone."

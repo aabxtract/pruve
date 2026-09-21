@@ -1,25 +1,17 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveCredential } from "@/lib/store";
-import { api, postJson } from "@/lib/http";
+import { postJson } from "@/lib/http";
 import { Button, Field, Screen, TopBar } from "@/components/ui";
 
 const ISSUER = process.env.NEXT_PUBLIC_ISSUER_URL!;
-
-interface Sample {
-  nin: string;
-  account: string;
-  name: string;
-  age: number;
-}
 
 /**
  * Shared onboarding form for all three issuers.
  *
  * The three screens differed only in a field label and an endpoint, so they
- * are one component. It also surfaces a real record from the issuer's
- * registry: a demo where nobody knows what to type is a demo that stalls.
+ * are one component.
  */
 export function OnboardForm({
   kind,
@@ -30,7 +22,6 @@ export function OnboardForm({
   digits,
   field,
   never,
-  sampleKey,
 }: {
   kind: "nimc" | "bank" | "card";
   title: string;
@@ -38,22 +29,13 @@ export function OnboardForm({
   label: string;
   placeholder: string;
   digits: number;
-  field: "nin" | "account";
+  field: "nin" | "bvn";
   never?: string[];
-  sampleKey: "nin" | "account";
 }) {
   const [value, setValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [sample, setSample] = useState<Sample | null>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    api(`${ISSUER}/samples`)
-      .then((r) => r.json())
-      .then((s) => setSample(s.student))
-      .catch(() => setSample(null));
-  }, []);
 
   const valid = new RegExp(`^\\d{${digits}}$`).test(value);
 
@@ -115,21 +97,6 @@ export function OnboardForm({
       <Button onClick={link} disabled={loading || !valid}>
         {loading ? "Linking…" : "Link credential"}
       </Button>
-
-      {sample && (
-        <button
-          onClick={() => setValue(sample[sampleKey])}
-          className="w-full mt-5 rounded-2xl border border-dashed border-zinc-800 p-3.5 text-left hover:border-zinc-700 transition"
-        >
-          <p className="text-[11px] uppercase tracking-widest text-zinc-500 mb-1">
-            Demo record — tap to fill
-          </p>
-          <p className="text-sm font-mono text-zinc-300">{sample[sampleKey]}</p>
-          <p className="text-xs text-zinc-500 mt-0.5">
-            {sample.name}, {sample.age} — synthetic test data
-          </p>
-        </button>
-      )}
     </Screen>
   );
 }

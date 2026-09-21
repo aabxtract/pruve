@@ -11,6 +11,7 @@ import path from "node:path";
  */
 export interface Person {
   nin: string;
+  bvn: string;
   name: string;
   dob: string;
   age: number;
@@ -34,6 +35,7 @@ const loaded = JSON.parse(fs.readFileSync(file, "utf-8")) as { people: Person[] 
 
 const byNin = new Map(loaded.people.map((p) => [p.nin, p]));
 const byAccount = new Map(loaded.people.map((p) => [p.account, p]));
+const byBvn = new Map(loaded.people.map((p) => [p.bvn, p]));
 
 export const registrySize = loaded.people.length;
 
@@ -62,6 +64,18 @@ export function findByAccount(account: string): { person: Person; exact: boolean
   return hit
     ? { person: hit, exact: true }
     : { person: fallback(account, byAccount), exact: false };
+}
+
+/**
+ * Look a holder up by BVN.
+ *
+ * This is the identifier a Nigerian bank actually knows you by — one BVN
+ * spans every bank you use, which is why it, and not an account number, is
+ * what the bank and card issuers take.
+ */
+export function findByBvn(bvn: string): { person: Person; exact: boolean } {
+  const hit = byBvn.get(bvn);
+  return hit ? { person: hit, exact: true } : { person: fallback(bvn, byBvn), exact: false };
 }
 
 /** A few real records, surfaced in the UI so a demo has something to type. */
