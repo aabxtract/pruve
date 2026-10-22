@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.png", type: "image/png" },
+      { url: "/PruveArtboard 1 copy 2.png", type: "image/png" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
     ],
     apple: "/apple-touch-icon.png",

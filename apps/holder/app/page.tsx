@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { getProfile } from "@/lib/profile";
 import { getWallet } from "@/lib/store";
@@ -41,11 +42,15 @@ export default function Landing() {
           className="absolute -top-40 left-1/2 -translate-x-1/2 w-[480px] h-[480px] rounded-full bg-emerald-500/15 blur-3xl"
         />
         <div className="relative px-6 pt-safe pb-10 max-w-md mx-auto">
-          <div className="flex items-center gap-2 mb-16 pt-4">
-            <div className="w-8 h-8 rounded-xl bg-white grid place-items-center text-zinc-950 font-bold text-sm">
-              ✓
-            </div>
-            <span className="font-semibold tracking-tight">Pruve</span>
+          <div className="mb-16 pt-4">
+            <Image
+              src="/pruve-logo.png"
+              alt="Pruve"
+              width={146}
+              height={32}
+              priority
+              className="h-8 w-auto"
+            />
           </div>
 
           <h1 className="text-[2.6rem] leading-[1.05] font-bold tracking-tight mb-5">
