@@ -1,5 +1,7 @@
-import fs from "node:fs";
-import path from "node:path";
+// A static import rather than a runtime fs read, so the deploy bundler inlines
+// the dataset and nothing depends on where the process happens to be started.
+// If this file is missing, run `npm run registry`.
+import registryData from "../data/registry.json" with { type: "json" };
 
 /**
  * The synthetic identity registry the mock issuers read from.
@@ -29,12 +31,7 @@ export interface Person {
   card_tier: "classic" | "gold" | "platinum";
 }
 
-const file = path.resolve(process.cwd(), "data/registry.json");
-if (!fs.existsSync(file)) {
-  throw new Error("No registry at data/registry.json. Run `npm run registry` first.");
-}
-
-const loaded = JSON.parse(fs.readFileSync(file, "utf-8")) as { people: Person[] };
+const loaded = registryData as unknown as { people: Person[] };
 
 const byNin = new Map(loaded.people.map((p) => [p.nin, p]));
 const byAccount = new Map(loaded.people.map((p) => [p.account, p]));

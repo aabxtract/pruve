@@ -5,8 +5,13 @@
 // hosting Next, not in the phone's browser.
 const ISSUER = process.env.ISSUER_ORIGIN ?? "http://localhost:3001";
 const VERIFIER_API = process.env.VERIFIER_API_ORIGIN ?? "http://localhost:3003";
-const DEV_API = process.env.DEVELOPER_API_ORIGIN ?? "http://localhost:3006";
-const SHOP = process.env.SHOP_ORIGIN ?? "http://localhost:3005";
+// Shop and Developer API are optional extras. Locally they default to their dev
+// ports; on a deployment that doesn't run them, leave these unset and the
+// routes are not registered, rather than proxying to a localhost that isn't there.
+const optional = (name, devDefault) =>
+  process.env[name] ?? (process.env.VERCEL ? undefined : devDefault);
+const DEV_API = optional("DEVELOPER_API_ORIGIN", "http://localhost:3006");
+const SHOP = optional("SHOP_ORIGIN", "http://localhost:3005");
 
 export default {
   transpilePackages: ["@pruve/core"],
@@ -38,9 +43,9 @@ export default {
       { source: "/api/verifier/:path*", destination: `${VERIFIER_API}/:path*` },
       // Campus Store, the third-party merchant. Proxied for the same reason:
       // the phone must reach it, and one tunnel is worth four.
-      { source: "/api/shop/:path*", destination: `${SHOP}/api/:path*` },
+      ...(SHOP ? [{ source: "/api/shop/:path*", destination: `${SHOP}/api/:path*` }] : []),
       // Hosted Developer API, so a wallet can post proofs to it through the tunnel.
-      { source: "/api/dev/:path*", destination: `${DEV_API}/v1/:path*` },
+      ...(DEV_API ? [{ source: "/api/dev/:path*", destination: `${DEV_API}/v1/:path*` }] : []),
     ];
   },
 };

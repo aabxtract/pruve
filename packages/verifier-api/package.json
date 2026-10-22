@@ -5,11 +5,18 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "build:vercel": "node ../../scripts/vercel-bundle.mjs"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
     "@pruve/core": "*",
+    "@upstash/redis": "^1.39.0",
     "hono": "^4.6.13"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.3"
   }
 }

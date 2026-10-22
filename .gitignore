@@ -16,3 +16,6 @@ dist/
 
 # Developer API keys
 .api-keys.json
+
+# Vercel CLI project links
+.vercel

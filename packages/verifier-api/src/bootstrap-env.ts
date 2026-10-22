@@ -5,7 +5,7 @@
  * This has to be an import rather than a plain loadEnv() call in index.ts,
  * because ESM hoists every `import` and evaluates dependencies in declaration
  * order — a statement in the module body runs *after* all of them, which is
- * too late for db.ts (DB_PATH) and keys.ts (ISSUER_URL).
+ * too late for store.ts (DB_PATH, Redis credentials) and keys.ts (ISSUER_URL).
  */
 import { loadEnv } from "./env.js";
 

@@ -175,6 +175,12 @@ app.post("/issue/card", async (c) => {
 // would let it observe every verification — who checked what, and when — which
 // is the exact surveillance property this architecture exists to remove.
 
-const port = Number(process.env.PORT ?? 3001);
-serve({ fetch: app.fetch, port });
-console.log(`Issuer API → http://localhost:${port}`);
+// Vercel invokes the default export itself; only listen on a port when running
+// as a plain Node process (local dev, tests).
+export default app;
+
+if (!process.env.VERCEL) {
+  const port = Number(process.env.PORT ?? 3001);
+  serve({ fetch: app.fetch, port });
+  console.log(`Issuer API → http://localhost:${port}`);
+}

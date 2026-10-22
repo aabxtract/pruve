@@ -1,0 +1,30 @@
+# A .vercelignore REPLACES .gitignore for `vercel deploy` rather than extending
+# it, so everything secret or stateful from .gitignore is repeated here.
+# If you add a secret pattern to .gitignore, add it here too.
+
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
+
+# Secrets — never upload
+.keys.json
+.env
+.env*.local
+
+# Local caches / state
+.pubkeys.json
+*.db
+*.db-journal
+.api-keys.json
+
+# Local tooling, not part of any build
+/.claude/
+/.kilo/
+.vercel/
+
+# Not needed to build or run the deployed services (scripts/ is deliberately kept:
+# the Vercel bundler lives there)
+/docs/
+/pruve-build-guide.md
